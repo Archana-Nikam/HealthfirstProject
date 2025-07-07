@@ -115,7 +115,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT= BASE_DIR
+STATICFILES_DIRS = [
+    BASE_DIR / 'healthbackend' / 'static'  # ✅ Path object, platform-independent
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
