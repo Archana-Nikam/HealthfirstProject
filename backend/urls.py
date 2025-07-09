@@ -14,16 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django import views
 from django.contrib import admin
-from django.urls import path #include  #(include) word #he include kartory project chya url.py madhe karan 
-#health chya app madhe url.py la control pass karnya sathi nantr path madhe pass kartoy backend madhun url.py ghetoy manully create kartoy
-from healthbackend.views import home
-
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'), #empty space shows that this is root url means http://127.0.0.1:8000/
-   # path('','/backend/healthbackend', include('backend.urls')),
-   
+    path('', include('healthbackend.urls')),  # This line includes all your app's URLs
 ]
