@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-
 from .models import Blog
-
 
 class UserProfileSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -19,10 +17,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
         )
         return user
 
-# for blog model this is important in serializer for this we need to import blog from models which is imported at the top 
+# ✅ Updated BlogSerializer
 class BlogSerializer(serializers.ModelSerializer):
-    author_username = serializers.CharField(source='author.username', read_only=True)
+    author_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
         fields = '__all__'
+
+    def get_author_name(self, obj):
+        if obj.show_author_name and obj.author:
+            return obj.author.username
+        return "Anonymous"
