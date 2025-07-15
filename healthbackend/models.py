@@ -24,7 +24,6 @@ LIKERT_CHOICES = [
    
     ('agree', 'Agree'),
     ('partially_agree', 'Partially Agree'),
-    
     ('neutral', 'Neutral'),
     ('disagree', 'Disagree'),
     
