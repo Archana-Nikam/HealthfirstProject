@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .models import Quiz
 from .serializers import QuizSerializer
-
+from .models import TherapistBooking
+from .serializers import TherapistBookingSerializer
 from .models import Blog
 from .serializers import BlogSerializer, UserProfileSerializer
 
@@ -157,3 +158,70 @@ def delete_quiz(request, pk):
         return Response({'message': 'Quiz deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     except Quiz.DoesNotExist:
         return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+# --------------------------
+# THERAPIST BOOKING: CREATE
+# --------------------------
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def book_therapist(request):
+    serializer = TherapistBookingSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Booking submitted successfully!",
+            "booking": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# --------------------------
+# THERAPIST BOOKING: LIST
+# --------------------------
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def list_therapist_bookings(request):
+    bookings = TherapistBooking.objects.all().order_by('-submitted_at')
+    serializer = TherapistBookingSerializer(bookings, many=True)
+    return Response(serializer.data)
+
+# --------------------------
+# THERAPIST BOOKING: GET ONE
+# --------------------------
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def get_therapist_booking(request, pk):
+    try:
+        booking = TherapistBooking.objects.get(pk=pk)
+        serializer = TherapistBookingSerializer(booking)
+        return Response(serializer.data)
+    except TherapistBooking.DoesNotExist:
+        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# --------------------------
+# THERAPIST BOOKING: UPDATE
+# --------------------------
+@api_view(['PUT'])
+@permission_classes([permissions.AllowAny])
+def update_therapist_booking(request, pk):
+    try:
+        booking = TherapistBooking.objects.get(pk=pk)
+        serializer = TherapistBookingSerializer(booking, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except TherapistBooking.DoesNotExist:
+        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# --------------------------
+# THERAPIST BOOKING: DELETE
+# --------------------------
+@api_view(['DELETE'])
+@permission_classes([permissions.AllowAny])
+def delete_therapist_booking(request, pk):
+    try:
+        booking = TherapistBooking.objects.get(pk=pk)
+        booking.delete()
+        return Response({'message': 'Booking deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    except TherapistBooking.DoesNotExist:
+        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)

@@ -1,4 +1,3 @@
-# healthbackend/urls.py
 from django.urls import path
 from . import views
 from .views import (
@@ -9,24 +8,43 @@ from .views import (
     get_blog,
     update_blog,
     delete_blog,
+    list_quizzes,
+    create_quiz,
+    get_quiz,
+    update_quiz,
+    delete_quiz,
+    submit_quiz_response,         
+    get_quiz_feedback_by_score,
+    book_therapist, 
+    list_therapist_bookings   
+       
+       
+         
 )
 
 urlpatterns = [
+    # User and Admin Auth
     path('register/', register_user, name='register_user'),
     path('admin-login/', login_admin, name='admin_login'),
 
-    # Blog API endpoints (Function-Based Views)
-    path('blogs/', list_blogs, name='list_blogs'),                  # GET all blogs
-    path('blogs/create/', create_blog, name='create_blog'),        # POST new blog
-    path('blogs/<int:pk>/', get_blog, name='get_blog'),            # GET one blog
-    path('blogs/<int:pk>/update/', update_blog, name='update_blog'),  # PUT update
-    path('blogs/<int:pk>/delete/', delete_blog, name='delete_blog'),  # DELETE blog
+    # Blog API endpoints
+    path('blogs/', list_blogs, name='list_blogs'),                  
+    path('blogs/create/', create_blog, name='create_blog'),        
+    path('blogs/<int:pk>/', get_blog, name='get_blog'),            
+    path('blogs/<int:pk>/update/', update_blog, name='update_blog'),
+    path('blogs/<int:pk>/delete/', delete_blog, name='delete_blog'),
 
+    # Quiz CRUD endpoints
+    path('quizzes/', list_quizzes, name='quiz-list'),
+    path('quizzes/create/', create_quiz, name='quiz-create'),
+    path('quizzes/<int:pk>/', get_quiz, name='quiz-detail'),
+    path('quizzes/<int:pk>/update/', update_quiz, name='quiz-update'),
+    path('quizzes/<int:pk>/delete/', delete_quiz, name='quiz-delete'),
 
+    # Quiz Response Submission & Feedback
+    path('quiz-response/', submit_quiz_response, name='quiz-response'),  # POST: submit quiz
+    path('quiz-feedback/<int:score>/', get_quiz_feedback_by_score, name='quiz-feedback'),  # Optional: GET feedback from score only
 
-    path('quizzes/', views.list_quizzes, name='quiz-list'),
-    path('quizzes/create/', views.create_quiz, name='quiz-create'),
-    path('quizzes/<int:pk>/', views.get_quiz, name='quiz-detail'),
-    path('quizzes/<int:pk>/update/', views.update_quiz, name='quiz-update'),
-    path('quizzes/<int:pk>/delete/', views.delete_quiz, name='quiz-delete'),
+    path('book-therapist/', book_therapist, name='book_therapist'),
+    path('therapist-bookings/', list_therapist_bookings, name='therapist_booking_list'),
 ]

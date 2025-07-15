@@ -1,6 +1,7 @@
 import logging
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import TherapistBooking
 from .models import Blog, Quiz, Question, QuizResponse, Answer
 
 logger = logging.getLogger(__name__)
@@ -150,3 +151,8 @@ def get_feedback(self, obj):
             "redirect_to": "/blogs/"
         }
 
+#booking for therpist
+class TherapistBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TherapistBooking
+        fields = '__all__'

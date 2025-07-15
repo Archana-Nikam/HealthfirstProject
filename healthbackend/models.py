@@ -67,3 +67,33 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"{self.response.user_name} - {self.question.text} - {self.selected_option}"
+
+# for booking therpist model
+THERAPY_TYPE_CHOICES = [
+    ('individual', 'Individual'),
+    ('student', 'Student'),
+    ('couple', 'Couple'),
+]
+
+GENDER_IDENTITY_CHOICES = [
+    ('male', 'Male'),
+    ('female', 'Female'),
+   
+    ('prefer_not_say', 'Prefer not to say'),
+]
+
+class TherapistBooking(models.Model):
+    full_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    therapy_type = models.CharField(max_length=20, choices=THERAPY_TYPE_CHOICES)
+    pronouns = models.CharField(max_length=100, blank=True)
+    age = models.PositiveIntegerField()
+    gender_identity = models.CharField(max_length=20, choices=GENDER_IDENTITY_CHOICES)
+    occupation = models.CharField(max_length=255)
+    reason_for_therapy = models.TextField()
+    preferred_time_slot = models.DateTimeField()
+    payment_completed = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.therapy_type}"
