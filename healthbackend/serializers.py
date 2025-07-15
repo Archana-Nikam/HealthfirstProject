@@ -87,7 +87,7 @@ class QuizSerializer(serializers.ModelSerializer):
         return instance
 
 # ------------------------
-# Answer Serializer (✅ MISSING EARLIER)
+# Answer Serializer 
 # ------------------------
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
