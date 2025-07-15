@@ -19,5 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('healthbackend.urls')),  # This line includes all your app's URLs
+    path('api/', include('healthbackend.urls')), # This line includes all your app's URLs
 ]
