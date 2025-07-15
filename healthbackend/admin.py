@@ -1,10 +1,10 @@
+# healthbackend/admin.py
 from django.contrib import admin
-
-# Register your models here.
 from .models import Blog
 
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'created_at', 'updated_at', 'is_published')
+    list_display = ('title', 'author', 'is_published', 'show_author_name', 'created_at', 'updated_at')
+    list_filter = ('is_published', 'show_author_name', 'created_at')
     search_fields = ('title', 'content', 'author__username')
-    list_filter = ('created_at', 'is_published')
+    ordering = ('-created_at',)

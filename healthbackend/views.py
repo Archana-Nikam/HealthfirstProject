@@ -1,91 +1,159 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status, permissions, viewsets, serializers
-from rest_framework.views import APIView
-from django.contrib.auth import authenticate
+from rest_framework import status, permissions
 from django.contrib.auth.models import User
-from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .models import Quiz
+from .serializers import QuizSerializer
 
-from .serializers import UserProfileSerializer, BlogSerializer
 from .models import Blog
+from .serializers import BlogSerializer, UserProfileSerializer
 
-# ------------------------------
-# ✅ 1. Register User View (Returns JWT tokens)
-# ------------------------------
+
+# --------------------------
+# USER REGISTRATION
+# --------------------------
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def register_user(request):
     serializer = UserProfileSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
         return Response({
-            'message': 'You have registered successfully!',
-            'user': serializer.data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
+            'message': 'User registered successfully',
+            'user': serializer.data
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ------------------------------
-# ✅ 2. Normal Login View
-# ------------------------------
+# --------------------------
+# ADMIN LOGIN
+# --------------------------
 @api_view(['POST'])
-def login_user(request):
+@permission_classes([permissions.AllowAny])
+def login_admin(request):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
 
-    if user is not None:
+    if user and user.is_superuser:
         return Response({
-            'message': 'Login successful!',
+            'message': 'Admin login successful',
             'username': user.username,
-            'uid': user.id,
-            'is_admin': user.is_superuser
+            'uid': user.id
         }, status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
-# ------------------------------
-# ✅ 3. Admin Login View (Only for superusers)
-# ------------------------------
+# --------------------------
+# BLOG: CREATE
+# --------------------------
 @api_view(['POST'])
-def admin_login(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    user = authenticate(username=username, password=password)
+@permission_classes([permissions.AllowAny])
+def create_blog(request):
+    serializer = BlogSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(author=request.user if request.user.is_authenticated else None)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if user is not None and user.is_superuser:
-        return Response({
-            'message': 'Admin login successful!',
-            'username': user.username,
-            'uid': user.id,
-            'is_admin': user.is_superuser
-        }, status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_400_BAD_REQUEST)
+# --------------------------
+# BLOG: LIST
+# --------------------------
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def list_blogs(request):
+    blogs = Blog.objects.all().order_by('-created_at')
+    serializer = BlogSerializer(blogs, many=True)
+    return Response(serializer.data)
 
-# ------------------------------
-# ✅ 4. Blog CRUD ViewSet
-# ------------------------------
-class BlogViewSet(viewsets.ModelViewSet):
-    queryset = Blog.objects.all().order_by('-created_at')
-    serializer_class = BlogSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+# --------------------------
+# BLOG: GET ONE
+# --------------------------
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def get_blog(request, pk):
+    try:
+        blog = Blog.objects.get(pk=pk)
+        serializer = BlogSerializer(blog)
+        return Response(serializer.data)
+    except Blog.DoesNotExist:
+        return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+# --------------------------
+# BLOG: UPDATE
+# --------------------------
+@api_view(['PUT'])
+@permission_classes([permissions.AllowAny])
+def update_blog(request, pk):
+    try:
+        blog = Blog.objects.get(pk=pk)
+        serializer = BlogSerializer(blog, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Blog.DoesNotExist:
+        return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
 
-# ------------------------------
-# ✅ 5. Admin-only: Get all registered users
-# ------------------------------
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
+# --------------------------
+# BLOG: DELETE
+# --------------------------
+@api_view(['DELETE'])
+@permission_classes([permissions.AllowAny])
+def delete_blog(request, pk):
+    try:
+        blog = Blog.objects.get(pk=pk)
+        blog.delete()
+        return Response({'message': 'Blog deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    except Blog.DoesNotExist:
+        return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# api for quizz
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def create_quiz(request):
+    serializer = QuizSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAdminUser])  # Only admin allowed
-def get_all_users(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
+@permission_classes([permissions.AllowAny])
+def list_quizzes(request):
+    quizzes = Quiz.objects.all().order_by('-created_at')
+    serializer = QuizSerializer(quizzes, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def get_quiz(request, pk):
+    try:
+        quiz = Quiz.objects.get(pk=pk)
+        serializer = QuizSerializer(quiz)
+        return Response(serializer.data)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PUT'])
+@permission_classes([permissions.AllowAny])
+def update_quiz(request, pk):
+    try:
+        quiz = Quiz.objects.get(pk=pk)
+        serializer = QuizSerializer(quiz, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['DELETE'])
+@permission_classes([permissions.AllowAny])
+def delete_quiz(request, pk):
+    try:
+        quiz = Quiz.objects.get(pk=pk)
+        quiz.delete()
+        return Response({'message': 'Quiz deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
