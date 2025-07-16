@@ -73,4 +73,4 @@ class TherapistBookingSerializer(serializers.ModelSerializer):
 class TrendingSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrendingSearch
-        fields = ['id', 'keyword']
+        fields = '__all__'

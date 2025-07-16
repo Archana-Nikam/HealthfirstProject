@@ -20,7 +20,7 @@ class Blog(models.Model):
 # Quiz Models
 # ----------------------
 
-LIKERT_CHOICES = [
+LIKE_CHOICES = [
    
     ('agree', 'Agree'),
     ('partially_agree', 'Partially Agree'),
@@ -41,7 +41,7 @@ class Question(models.Model):
     text = models.CharField(max_length=500)
     correct_answer = models.CharField(
         max_length=50,
-        choices=LIKERT_CHOICES,
+        choices=LIKE_CHOICES,
         default='neutral'  # ✅ Default value added to fix migration error
     )
 
@@ -63,7 +63,7 @@ class QuizResponse(models.Model):
 class Answer(models.Model):
     response = models.ForeignKey(QuizResponse, on_delete=models.CASCADE, related_name='answers')
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_option = models.CharField(max_length=50, choices=LIKERT_CHOICES)
+    selected_option = models.CharField(max_length=50, choices=LIKE_CHOICES)
 
     def __str__(self):
         return f"{self.response.user_name} - {self.question.text} - {self.selected_option}"

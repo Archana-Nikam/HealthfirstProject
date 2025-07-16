@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login
 
 from .models import Blog, Quiz, TherapistBooking, QuizResponse, Answer, TrendingSearch
 from .serializers import (
@@ -28,6 +28,25 @@ def register_user(request):
             'user': serializer.data
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# --------------------------
+# USER LOGIN
+# --------------------------
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def login_user(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+
+    if user and user.is_active and not user.is_superuser:
+        login(request, user)  # Set session
+        return Response({
+            'message': 'User login successful',
+            'username': user.username,
+            'uid': user.id
+        }, status=status.HTTP_200_OK)
+    return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 # --------------------------
 # ADMIN LOGIN
