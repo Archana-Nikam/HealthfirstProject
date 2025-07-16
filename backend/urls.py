@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from healthbackend.views import api_home
+from healthbackend.views import home_view, api_root_view  # ✅ import api_root_view here too
 
 urlpatterns = [
-
+    path('', home_view, name='home'),
     path('admin/', admin.site.urls),
+
+    #  Serve /api/ directly with a custom view
+    path('api/', api_root_view, name='api-root'),
+
+    #  Include all other /api/xyz routes from app
     path('api/', include('healthbackend.urls')),
 ]

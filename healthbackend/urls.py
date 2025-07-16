@@ -1,5 +1,4 @@
 from django.urls import path
-from . import views
 from .views import (
     register_user,
     login_user,
@@ -26,9 +25,9 @@ urlpatterns = [
     # -----------------------------
     # User & Admin Authentication
     # -----------------------------
-    path('register/', register_user, name='register_user'),             # User Registration
-    path('user-login/', login_user, name='login_user'),                 # User Login
-    path('admin-login/', login_admin, name='login_admin'),             # Admin Login
+    path('register/', register_user, name='register_user'),              # User Registration
+    path('user-login/', login_user, name='login_user'),                  # User Login
+    path('admin-login/', login_admin, name='login_admin'),              # Admin Login
 
     # -----------------------------
     # Blog CRUD Endpoints

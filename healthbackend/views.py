@@ -1,3 +1,201 @@
+from django.http import HttpResponse
+
+def home_view(request):
+    return HttpResponse("""
+        <html>
+        <head>
+            <title>HealthFirst Backend</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: #f7fafc;
+                    color: #333;
+                    text-align: center;
+                    padding: 40px;
+                }
+                h1 {
+                    color: #37474F;
+                    font-size: 2.5em;
+                    margin-bottom: 10px;
+                }
+                p {
+                    font-size: 1.2em;
+                    color: #555;
+                    margin-bottom: 30px;
+                }
+                ul {
+                    list-style-type: none;
+                    padding: 0;
+                    margin: 0 auto;
+                    max-width: 300px;
+                }
+                li {
+                    margin: 25px 0;  
+                }
+                a {
+                    text-decoration: none;
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    transition: background 0.3s, transform 0.2s;
+                    display: inline-block;
+                    width: 100%;
+                }
+                .admin-link a {
+                    background: #1976d2;
+                }
+                .admin-link a:hover {
+                    background: #1565c0;
+                    transform: scale(1.05);
+                }
+                .api-link a {
+                    background: #388e3c;
+                }
+                .api-link a:hover {
+                    background: #2e7d32;
+                    transform: scale(1.05);
+                }
+            </style>
+        </head>
+        <body>
+            <h1> Welcome to the HealthFirst Project's Backend</h1>
+            <p>Available paths:</p>
+            <ul>
+                <li class="admin-link"><a href="/admin/"> Admin Panel</a></li>
+                <li class="api-link"><a href="/api/">API Root</a></li>
+            </ul>
+        </body>
+        </html>
+    """)
+
+def api_root_view(request):
+    return HttpResponse("""
+    <html>
+    <head>
+        <title>HealthFirst API Dashboard</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, sans-serif;
+                background-color: #f0f4f8;
+                padding: 40px;
+                color: #333;
+                font-size: 14px;
+            }
+            h1 {
+                text-align: center;
+                color: #1a237e;
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+            h2 {
+                color: #37474f;
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+            .row {
+                display: flex;
+                justify-content: center;
+                gap: 40px;
+                margin-bottom: 35px;
+            }
+            .col {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .card {
+                background-color: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+                padding: 20px;
+                width: 280px;
+            }
+            .small-card {
+                width: 280px;
+            }
+            .link-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .api-link {
+                background-color: #dbeafe; /* soft blue */
+                color: #0b3d91;
+                padding: 10px;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: 500;
+                text-align: center;
+                transition: all 0.3s ease;
+            }
+            .api-link:hover {
+                background-color: #bfdbfe;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Welcome to the HealthFirst API</h1>
+
+        <!-- Row 1: Authentication & Blogs -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <h2>Authentication</h2>
+                    <div class="link-grid">
+                        <a href="/admin/" class="api-link">Admin Panel</a>
+                        <a href="/api/register/" class="api-link">Register</a>
+                        <a href="/api/user-login/" class="api-link">User Login</a>
+                        <a href="/api/admin-login/" class="api-link">Admin Login</a>
+                    </div>
+                </div>
+
+                <div class="card small-card">
+                    <h2>Quiz APIs</h2>
+                    <div class="link-grid">
+                        <a href="/api/quizzes/" class="api-link">View Quizzes</a>
+                        <a href="/api/quizzes/create/" class="api-link">Create Quiz</a>
+                        <a href="/api/quizzes/1/update/" class="api-link">Update Quiz</a>
+                        <a href="/api/quizzes/1/delete/" class="api-link">Delete Quiz</a>
+                        <a href="/api/quiz-response/" class="api-link">Submit Response</a>
+                        <a href="/api/quiz-feedback/10/" class="api-link">Get Feedback</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <h2>Blog APIs</h2>
+                    <div class="link-grid">
+                        <a href="/api/blogs/" class="api-link">View Blogs</a>
+                        <a href="/api/blogs/create/" class="api-link">Create Blog</a>
+                        <a href="/api/blogs/1/update/" class="api-link">Update Blog</a>
+                        <a href="/api/blogs/1/delete/" class="api-link">Delete Blog</a>
+                    </div>
+                </div>
+
+                <div class="card small-card">
+                    <h2>Therapist APIs</h2>
+                    <div class="link-grid">
+                        <a href="/api/book-therapist/" class="api-link">Book Therapist</a>
+                        <a href="/api/therapist-bookings/" class="api-link">View Bookings</a>
+                    </div>
+                </div>
+
+                <div class="card small-card">
+                    <h2>Trending APIs</h2>
+                    <div class="link-grid">
+                        <a href="/api/trending-search/" class="api-link">Trending Keywords</a>
+                        <a href="/api/blogs-by-keyword/mental/" class="api-link">Blogs by Keyword</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """)
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, permissions
