@@ -3,13 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import Quiz
-from .serializers import QuizSerializer
-from .models import TherapistBooking
-from .serializers import TherapistBookingSerializer
-from .models import Blog
-from .serializers import BlogSerializer, UserProfileSerializer
 
+from .models import Blog, Quiz, TherapistBooking, QuizResponse, Answer
+from .serializers import (
+    UserProfileSerializer, BlogSerializer, QuizSerializer,
+    QuizResponseSerializer, TherapistBookingSerializer
+)
 
 # --------------------------
 # USER REGISTRATION
@@ -35,7 +34,6 @@ def login_admin(request):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
-
     if user and user.is_superuser:
         return Response({
             'message': 'Admin login successful',
@@ -45,7 +43,7 @@ def login_admin(request):
     return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 # --------------------------
-# BLOG: CREATE
+# BLOG CRUD
 # --------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -56,9 +54,6 @@ def create_blog(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# --------------------------
-# BLOG: LIST
-# --------------------------
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def list_blogs(request):
@@ -66,9 +61,6 @@ def list_blogs(request):
     serializer = BlogSerializer(blogs, many=True)
     return Response(serializer.data)
 
-# --------------------------
-# BLOG: GET ONE
-# --------------------------
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def get_blog(request, pk):
@@ -79,9 +71,6 @@ def get_blog(request, pk):
     except Blog.DoesNotExist:
         return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
 
-# --------------------------
-# BLOG: UPDATE
-# --------------------------
 @api_view(['PUT'])
 @permission_classes([permissions.AllowAny])
 def update_blog(request, pk):
@@ -95,9 +84,6 @@ def update_blog(request, pk):
     except Blog.DoesNotExist:
         return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
 
-# --------------------------
-# BLOG: DELETE
-# --------------------------
 @api_view(['DELETE'])
 @permission_classes([permissions.AllowAny])
 def delete_blog(request, pk):
@@ -108,8 +94,9 @@ def delete_blog(request, pk):
     except Blog.DoesNotExist:
         return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
-# api for quizz
+# --------------------------
+# QUIZ CRUD
+# --------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def create_quiz(request):
@@ -158,9 +145,37 @@ def delete_quiz(request, pk):
         return Response({'message': 'Quiz deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     except Quiz.DoesNotExist:
         return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
 # --------------------------
-# THERAPIST BOOKING: CREATE
+# QUIZ RESPONSE & FEEDBACK
+# --------------------------
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def submit_quiz_response(request):
+    serializer = QuizResponseSerializer(data=request.data)
+    if serializer.is_valid():
+        instance = serializer.save()
+        return Response({
+            'message': 'Quiz submitted successfully',
+            'score': serializer.get_score(instance),
+            'feedback': serializer.get_feedback(instance)
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def get_quiz_feedback_by_score(request, score):
+    score = int(score)
+    if score >= 16:
+        feedback = "You’re highly self-aware and emotionally intelligent. Keep it up!"
+    elif score >= 10:
+        feedback = "You have moderate emotional awareness. Consider focusing on areas that challenge you."
+    else:
+        feedback = "It may help to reflect more deeply or seek support to grow emotional insight."
+    return Response({'score': score, 'feedback': feedback})
+
+# --------------------------
+# THERAPIST BOOKING CRUD
 # --------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -174,9 +189,6 @@ def book_therapist(request):
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# --------------------------
-# THERAPIST BOOKING: LIST
-# --------------------------
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def list_therapist_bookings(request):
@@ -184,9 +196,6 @@ def list_therapist_bookings(request):
     serializer = TherapistBookingSerializer(bookings, many=True)
     return Response(serializer.data)
 
-# --------------------------
-# THERAPIST BOOKING: GET ONE
-# --------------------------
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def get_therapist_booking(request, pk):
@@ -197,9 +206,6 @@ def get_therapist_booking(request, pk):
     except TherapistBooking.DoesNotExist:
         return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
 
-# --------------------------
-# THERAPIST BOOKING: UPDATE
-# --------------------------
 @api_view(['PUT'])
 @permission_classes([permissions.AllowAny])
 def update_therapist_booking(request, pk):
@@ -213,9 +219,6 @@ def update_therapist_booking(request, pk):
     except TherapistBooking.DoesNotExist:
         return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
 
-# --------------------------
-# THERAPIST BOOKING: DELETE
-# --------------------------
 @api_view(['DELETE'])
 @permission_classes([permissions.AllowAny])
 def delete_therapist_booking(request, pk):
