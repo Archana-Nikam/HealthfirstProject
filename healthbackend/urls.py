@@ -19,9 +19,16 @@ from .views import (
     list_therapist_bookings,
     list_trending_keywords,
     blogs_by_trending_keyword,
+    api_root_view  # ✅ Import the API root view
 )
 
 urlpatterns = [
+
+    # -----------------------------
+    # API Dashboard Root (HTML View)
+    # -----------------------------
+    path('', api_root_view, name='api-root'),  # ✅ Shows API landing page at /api/
+
     # -----------------------------
     # User & Admin Authentication
     # -----------------------------
