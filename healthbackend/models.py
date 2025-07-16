@@ -124,3 +124,10 @@ class TherapistBooking(models.Model):
 
     def __str__(self):
         return f"{self.full_name} - {self.therapy_type}"
+
+
+class TrendingSearch(models.Model):
+    keyword = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.keyword

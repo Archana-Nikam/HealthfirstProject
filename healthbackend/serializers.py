@@ -1,7 +1,7 @@
 # serializers.py — Correct and Clean version
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Blog, Quiz, QuizResponse, Answer, Question, TherapistBooking
+from .models import Blog, Quiz, QuizResponse, Answer, Question, TherapistBooking,TrendingSearch
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -68,3 +68,9 @@ class TherapistBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = TherapistBooking
         fields = '__all__'
+
+
+class TrendingSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrendingSearch
+        fields = ['id', 'keyword']

@@ -4,10 +4,14 @@ from rest_framework import status, permissions
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
-from .models import Blog, Quiz, TherapistBooking, QuizResponse, Answer
+from .models import Blog, Quiz, TherapistBooking, QuizResponse, Answer, TrendingSearch
 from .serializers import (
-    UserProfileSerializer, BlogSerializer, QuizSerializer,
-    QuizResponseSerializer, TherapistBookingSerializer
+    TrendingSearchSerializer,
+    UserProfileSerializer,
+    BlogSerializer,
+    QuizSerializer,
+    QuizResponseSerializer,
+    TherapistBookingSerializer
 )
 
 # --------------------------
@@ -228,3 +232,17 @@ def delete_therapist_booking(request, pk):
         return Response({'message': 'Booking deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     except TherapistBooking.DoesNotExist:
         return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def list_trending_keywords(request):
+    trending = TrendingSearch.objects.all()
+    serializer = TrendingSearchSerializer(trending, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def blogs_by_trending_keyword(request, keyword):
+    blogs = Blog.objects.filter(title__icontains=keyword) | Blog.objects.filter(content__icontains=keyword)
+    serializer = BlogSerializer(blogs, many=True)
+    return Response(serializer.data)
