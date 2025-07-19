@@ -42,7 +42,7 @@ class Question(models.Model):
     correct_answer = models.CharField(
         max_length=50,
         choices=LIKE_CHOICES,
-        default='neutral'  # ✅ Default value added to fix migration error
+        default='neutral'  
     )
 
     def __str__(self):
@@ -92,7 +92,7 @@ class Therapist(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     specialization = models.CharField(max_length=100)
-    location = models.CharField(max_length=100)  # e.g., city or pincode
+    location = models.CharField(max_length=100)  
     available_days = models.CharField(max_length=100)
     available_time = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
@@ -105,7 +105,7 @@ class Therapist(models.Model):
 class TherapistBooking(models.Model):
     therapist = models.ForeignKey(
         Therapist,
-        on_delete=models.SET_NULL,   # SET_NULL to allow null during migration
+        on_delete=models.SET_NULL,   
         null=True,
         blank=True,
         related_name='bookings'

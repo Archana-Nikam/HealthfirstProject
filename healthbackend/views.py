@@ -201,6 +201,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login
+from rest_framework.permissions import IsAdminUser
 
 from .models import Blog, Quiz, TherapistBooking, QuizResponse, Answer, TrendingSearch
 from .serializers import (
@@ -216,16 +217,26 @@ from .serializers import (
 # USER REGISTRATION
 # --------------------------
 @api_view(['POST'])
-@permission_classes([permissions.AllowAny])
 def register_user(request):
-    serializer = UserProfileSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
-        return Response({
-            'message': 'User registered successfully',
-            'user': serializer.data
-        }, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    username = request.data.get('username')
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    user.save()
+
+    return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])  # Only admin can access
+def list_users(request):
+    users = User.objects.all().values('id', 'username', 'email', 'date_joined', 'is_active')
+    return Response({'users': list(users)}, status=status.HTTP_200_OK)    
 
 # --------------------------
 # USER LOGIN
